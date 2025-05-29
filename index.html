@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Guess</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+        <p>載入中...</p>
+    </div>
+
+    <!-- Room Invite Notification Popup -->
+    <div id="room-invite-notification-popup"> <!-- 移除 'hidden' 和 'popup-overlay' class -->
+        <div class="popup-content"> <!-- 這個 div 的樣式將被大幅修改 -->
+            <button id="room-invite-banner-close-button" class="room-invite-banner-close-button">&times;</button>
+            <p id="room-invite-message"></p>
+            <div class="room-invite-actions">
+                <button id="accept-room-invite-button">接受</button>
+                <button id="decline-room-invite-button">拒絕</button>
+            </div>
+            <div id="room-invite-timer"></div>
+        </div>
+    </div>
+
+    <!-- Friend Request Notification Popup (保持不變) -->
+    <!-- ... existing friend request popup HTML ... -->
+
+    <div id="current-user-info" class="hidden">
+        <span id="user-display"></span>
+        <button id="logout-button" class="small-button">登出</button>
+    </div>
+
+    <div class="container">
+        <!-- Auth Pages -->
+        <div id="auth-page">
+            <div class="blackboard-container">
+                <div class="blackboard-top-bar"></div>
+                <img src="images/game logo.png" alt="Emoji Game Logo" class="game-logo-img auth-logo">
+                <div id="login-view">
+                    <input type="email" id="login-email" placeholder="Email" autocomplete="email">
+                    <input type="password" id="login-password" placeholder="密碼" autocomplete="current-password">
+                    <div class="auth-buttons">
+                        <button id="login-button">登入</button>
+                        <button id="guest-login-button">以訪客進入</button>
+                    </div>
+                    <p class="auth-switch-link">沒有帳號? <a href="#" id="show-register-link">註冊</a></p>
+                    <p id="login-error" class="error-message hidden"></p>
+                </div>
+                <div id="register-view" class="hidden">
+                    <input type="text" id="register-username" placeholder="使用者名稱 (2-10 字元, 英數)" autocomplete="username">
+                    <input type="email" id="register-email" placeholder="Email" autocomplete="email">
+                    <input type="password" id="register-password" placeholder="密碼 (至少 6 字元)" autocomplete="new-password">
+                    <button id="register-button">註冊</button>
+                    <p class="auth-switch-link">已經有帳號了? <a href="#" id="show-login-link">登入</a></p>
+                    <p id="register-error" class="error-message hidden"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="main-menu" class="hidden">
+            <div class="blackboard-container">
+                <div class="blackboard-top-bar main-menu-top-bar">
+                    <span>遊戲大廳</span>
+                </div>
+                <img src="images/game logo.png" alt="Emoji Game Logo" class="game-logo-img auth-logo">
+                <div class="main-menu-user-info">
+                    <p id="welcome-message">你好，玩家1~</p>
+                </div>
+                <button id="main-menu-login-button" class="hidden">登入帳號</button>
+                <button id="single-player-button">單人模式</button>
+                <button id="multiplayer-button">多人模式</button>
+                <button id="friends-button">好友列表</button>
+                <div id="single-player-highscore-display">個人歷史最高紀錄: 101</div>
+            </div>
+        </div>
+
+        <!-- Single Player Game -->
+        <div id="single-player-game" class="hidden">
+            <div class="blackboard-container game-blackboard">
+                <div class="game-title-bar">
+                    <div id="sp-lives" class="game-lives">❤️❤️❤️</div>
+                    <span class="game-mode-name">單人模式</span>
+                    <div id="sp-timer" class="game-timer">⏳: 40</div>
+                </div>
+                <div id="sp-score" class="game-score">POINT: 0</div>
+                <div id="sp-category" class="game-category">類別: 成語</div>
+                <div id="sp-emojis" class="game-emojis">🐔✈️🐶💃</div>
+                <button id="sp-hint-button" class="game-hint-button">提示 (3)</button>
+                <div id="sp-hint-text" class="game-hint-text hidden">按下提示這邊顯示提示</div>
+                <div class="game-answer-area">
+                    <input type="text" id="sp-answer-input" placeholder="請輸入答案">
+                    <button id="sp-submit-answer" class="game-submit-button">送出</button>
+                </div>
+                <p id="sp-message" class="message-area"></p>
+                <button id="sp-quit-button" class="game-quit-button">返回遊戲大廳</button>
+            </div>
+        </div>
+
+        <!-- Single Player Game Over Page -->
+        <div id="sp-game-over-page" class="hidden">
+             <div class="blackboard-container game-blackboard">
+                <div class="game-title-bar">
+                     <span class="game-mode-name">遊戲結束</span>
+                </div>
+                <p id="sp-game-over-message" style="font-size: 1.2em; margin: 20px 0;"></p>
+                <p id="sp-final-score-display" class="game-score" style="font-size: 1.5em;"></p>
+                <button id="sp-return-to-main-menu-button" class="game-quit-button">返回遊戲大廳</button>
+            </div>
+        </div>
+
+        <!-- Friends Page -->
+        <div id="friends-page" class="hidden">
+            <div class="blackboard-container friends-blackboard">
+                <div class="blackboard-top-bar main-menu-top-bar"> <!-- 共用主選單的頂部條樣式 -->
+                    <span>好友列表</span>
+                </div>
+
+                <div class="friend-search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="friend-search-input" placeholder="輸入使用者名稱">
+                </div>
+                <div id="friend-search-results" class="friends-section-spacing"></div> <!-- 用於顯示搜尋結果 -->
+                
+                <div class="friends-list-container friends-section-spacing">
+                    <ul id="friends-list">
+                        <!-- Friends will be populated by script.js -->
+                    </ul>
+                    <p id="no-friends" class="hidden">您還沒有任何好友</p>
+                </div>
+
+                <button id="friends-back-button" class="friends-page-bottom-button">返回遊戲大廳</button>
+            </div>
+        </div>
+
+
+        <!-- Multiplayer Lobby -->
+        <div id="multiplayer-lobby" class="hidden">
+            <div class="blackboard-container lobby-blackboard">
+                <div class="blackboard-top-bar main-menu-top-bar">
+                    <span>多人遊戲大廳</span>
+                </div>
+                <div class="lobby-join-section">
+                    <input type="text" id="room-id-input" placeholder="輸入房間ID加入">
+                    <button id="join-room-button">加入</button>
+                </div>
+                <p id="invite-friend-info" class="hidden" style="margin: 15px 0; font-size: 0.9em;">你可以從好友列表邀請好友加入你創建的房間</p>
+                <div class="lobby-actions-bottom">
+                    <button id="create-room-button">創建房間</button>
+                    <button id="lobby-back-button">返回遊戲大廳</button>
+                </div>
+                <p id="lobby-message" class="message-area"></p>
+            </div>
+        </div>
+
+        <!-- Multiplayer Room -->
+        <div id="multiplayer-room" class="hidden">
+            <div class="blackboard-container room-blackboard">
+                <div class="blackboard-top-bar main-menu-top-bar">
+                    <span>遊戲房間</span>
+                </div>
+                <div id="room-info-mp">
+                    <p id="room-title">房間ID: <span id="room-id-display-for-invite">CR7909JUHBNWQVDYMUF</span></p>
+                    <p>房主: <span id="room-host">玩家1</span></p>
+                </div>
+                <button id="mp-invite-friend-button" class="room-invite-friend-button hidden">邀請好友</button>
+                <div id="mp-room-friend-invite-list-container" class="hidden friends-section">
+                    <h4>選擇要邀請的好友 :</h4>
+                    <ul id="mp-room-friend-invite-list" class="player-list-mp-invite"></ul>
+                </div>
+                <div class="player-list-title-mp">玩家列表</div>
+                <ul id="player-list" class="player-list-mp">
+                    <!-- Player items will be populated by script.js -->
+                </ul>
+                <div class="room-actions-mp">
+                    <button id="ready-button">準備</button>
+                    <button id="start-game-button" class="hidden">開始遊戲</button>
+                    <button id="leave-room-button">離開房間</button>
+                </div>
+                <p id="room-message" class="message-area"></p>
+            </div>
+        </div>
+
+        <!-- Multiplayer Game -->
+        <div id="multiplayer-game" class="hidden">
+            <div class="blackboard-container game-blackboard">
+                <div class="game-title-bar">
+                    <div id="mp-player-scores-sidebar" class="game-lives">
+                        <span>分數列表</span>
+                        <ul id="mp-player-scores">
+                            <!-- Scores will be populated by script.js -->
+                        </ul>
+                    </div>
+                    <span class="game-mode-name">多人模式</span>
+                    <div id="mp-timer" class="game-timer">⏳: 40</div>
+                </div>
+                <div id="mp-category" class="game-category">類別: 成語</div>
+                <div id="mp-current-round" class="game-round-info">1 / 15</div>
+                <div id="mp-emojis" class="game-emojis">🐔✈️🐶💃</div>
+                <button id="mp-hint-button-game" class="game-hint-button">提示 (3)</button>
+                <div id="mp-hint-text" class="game-hint-text hidden">按下提示這邊顯示提示</div>
+                <div class="game-answer-area">
+                    <input type="text" id="mp-answer-input" placeholder="請輸入答案">
+                    <button id="mp-submit-answer" class="game-submit-button">送出</button>
+                </div>
+                <p id="mp-message" class="message-area"></p>
+
+                <div id="mp-leaderboard-container" class="hidden blackboard-container game-blackboard" style="margin-top: 20px;">
+                     <div class="game-title-bar">
+                        <span class="game-mode-name">最終排名</span>
+                    </div>
+                    <div id="mp-leaderboard" style="width:100%;"></div>
+                    <div style="margin-top: 15px; display:flex; justify-content:space-around; width:100%;">
+                        <button id="mp-return-to-room-button" class="game-quit-button" style="width:auto; padding: 8px 15px;">返回房間</button>
+                        <button id="mp-leave-game-button" class="game-quit-button" style="width:auto; padding: 8px 15px;">離開遊戲</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
