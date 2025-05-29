@@ -11,4 +11,4 @@ const firebaseConfig = {
 
 gcliao12@gmail.com 123456
 st99057@mail2.smes.tyc.edu.tw 0123456
-jennychou0710@gmail.com 1234567
+
