@@ -1,0 +1,780 @@
+body {
+    font-family: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background-image: url('images/backgroud.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-sizing: border-box;
+    color: #333;
+}
+
+.container {
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 通用黑板容器樣式 */
+.blackboard-container {
+    background-color: #2D2D2D;
+    border: 20px solid #D2A679;
+    border-radius: 8px;
+    padding: 20px 30px 25px 30px;
+    color: #FFFFFF;
+    width: 90vw;
+    max-width: 700px;
+    min-width: 300px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    position: relative;
+    text-align: center;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 特定頁面的黑板容器微調 */
+#single-player-game .blackboard-container,
+#multiplayer-game .blackboard-container,
+#sp-game-over-page .blackboard-container {
+    max-width: 550px;
+    padding-bottom: 20px;
+}
+#multiplayer-lobby .blackboard-container {
+    max-width: 550px;
+    padding-bottom: 30px;
+    min-height: 380px;
+    justify-content: space-between;
+}
+#multiplayer-room .blackboard-container {
+    padding: 20px 25px 25px 25px;
+    max-width: 600px;
+}
+.friends-blackboard { /* 好友列表頁的黑板特定樣式 */
+    padding: 20px 25px 30px 25px; /* 增加底部 padding 給返回按鈕 */
+    max-width:600px;
+    min-height: 450px; /* 給好友列表一個最小高度 */
+    justify-content: flex-start; /* 內容從頂部開始排列 */
+}
+
+
+#auth-page,
+#main-menu,
+#single-player-game,
+#multiplayer-lobby,
+#multiplayer-room,
+#multiplayer-game,
+#sp-game-over-page,
+#friends-page {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+    width: auto;
+    max-width: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+button:disabled {
+    background-color: #555; /* Darker grey background */
+    color: #888; /* Greyed out text */
+    border-color: #666; /* Darker border */
+    cursor: not-allowed; /* Indicate it's disabled */
+}
+
+button:disabled:hover {
+    background-color: #555 !important; /* Same as disabled background */
+    color: #888 !important; /* Same as disabled text color */
+    transform: none !important; /* Remove translateY effect */
+    cursor: not-allowed !important; /* Ensure cursor remains 'not-allowed' */
+}
+
+/* 登入頁頂部條 */
+#auth-page .blackboard-top-bar {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    width: 48%; height: 22px; background-color: #B58A5F; border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25); display: flex; justify-content: space-between;
+    align-items: center; padding: 0 10px; box-sizing: border-box;
+}
+#auth-page .blackboard-top-bar::before,
+#auth-page .blackboard-top-bar::after {
+    content: ''; width: 7px; height: 7px; background-color: #FFFFFF; border-radius: 50%;
+}
+
+/* 主選單、多人大廳、遊戲房間、好友列表頂部標題條 */
+.main-menu-top-bar {
+    width: 60%; background-color: #D2A679; color: #4A3B31; padding: 6px 0;
+    border-radius: 5px; font-size: 1.1em; font-weight: bold; margin-bottom: 15px; /* 增加與下方內容的間距 */
+    position: relative; top: -5px; box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    display: flex; justify-content: space-between; align-items: center;
+    padding-left: 15px; padding-right: 15px; box-sizing: border-box;
+}
+.main-menu-top-bar::before,
+.main-menu-top-bar::after {
+    content: ''; width: 8px; height: 8px; background-color: #FFFFFF; border-radius: 50%;
+}
+.main-menu-top-bar span { flex-grow: 1; text-align: center; }
+
+
+/* 登入頁面 Logo 特定樣式 */
+.auth-logo {
+    margin-bottom: 22px; /* 與之前 H1 的 margin-bottom 類似 */
+    max-height: 120px; /* 您可以根據圖片的實際尺寸和期望效果調整 */
+}
+
+/* 主選單頁面 Logo 特定樣式 */
+.main-menu-logo {
+    max-height: 120px;  /* 您可以根據圖片的實際尺寸和期望效果調整 */
+}
+#auth-page #login-view h2, #auth-page #register-view h2 { display: none; }
+#main-menu #welcome-message { font-size: 0.9em; color: #D8D8D8; margin: 0 0 8px 0; text-align: center; }
+
+#auth-page input[type="email"], #auth-page input[type="password"], #auth-page input[type="text"] {
+    background-color: #2D2D2D; color: #FFFFFF; border: 2px solid #E0E0E0;
+    border-radius: 30px; padding: 11px 18px; margin: 7px 0;
+    width: calc(100% - 40px); font-size: 0.9em; box-sizing: border-box; text-align: left;
+}
+#auth-page input::placeholder { color: #A0A0A0; }
+#auth-page input:focus { border-color: #FFFFFF; box-shadow: 0 0 0 0.1rem rgba(255,255,255,.25); outline: none; }
+#auth-page .auth-buttons { display: flex; justify-content: space-between; margin-top: 18px; margin-bottom: 12px; gap: 10px; width: 100%; }
+#auth-page #login-button, #auth-page #guest-login-button {
+    background-color: #2D2D2D; color: #E0E0E0; border: 2px solid #E0E0E0;
+    padding: 9px 0; border-radius: 25px; cursor: pointer; font-size: 0.85em; font-weight: bold;
+    transition: background-color 0.2s, color 0.2s, transform 0.1s; width: 100%; box-sizing: border-box;
+    letter-spacing: 0.5px; min-width: 0;
+}
+#auth-page #login-button:hover, #auth-page #guest-login-button:hover { background-color: #E0E0E0; color: #2D2D2D; transform: translateY(-1px); }
+#auth-page #register-button {
+    background-color: #4CAF50; color: white; border: none; padding: 11px 0; border-radius: 25px;
+    font-size: 0.9em; cursor: pointer; font-weight: bold; transition: background-color 0.2s, transform 0.1s;
+    width: 100%; box-sizing: border-box; letter-spacing: 0.5px; margin-top: 15px; min-width: 0;
+}
+#auth-page #register-button:hover { background-color: #45a049; transform: translateY(-1px); }
+#auth-page .auth-switch-link { margin-top: 12px; font-size: 0.8em; color: #A0A0A0; }
+#auth-page .auth-switch-link a { color: #D8D8D8; text-decoration: underline; font-weight: bold; }
+#auth-page .auth-switch-link a:hover { color: #FFFFFF; }
+
+#main-menu button:not(#logout-button-main-menu):not(#main-menu-login-button) {
+    background-color: #2D2D2D; color: #E0E0E0; border: 2px solid #E0E0E0;
+    padding: 10px 20px; margin: 6px 0; border-radius: 30px; cursor: pointer;
+    font-size: 0.9em; font-weight: bold; transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    width: 70%; max-width: 240px; min-width: 0;
+}
+#main-menu button:not(#logout-button-main-menu):not(#main-menu-login-button):hover { background-color: #E0E0E0; color: #2D2D2D; transform: translateY(-1px); }
+#main-menu #main-menu-login-button {
+    background-color: #E0E0E0; color: #2D2D2D; border: 2px solid #E0E0E0;
+    padding: 10px 20px; margin: 6px 0; border-radius: 30px; font-size: 0.9em; font-weight: bold;
+    width: 70%; max-width: 240px;
+}
+#main-menu #main-menu-login-button:hover { background-color: #c7c7c7; }
+#main-menu #single-player-highscore-display { margin-top: 12px; font-size: 0.8em; color: #B0B0B0; }
+
+/* --- Game Pages (Single Player & Multiplayer Game View) --- */
+.game-blackboard { padding: 15px 20px 20px 20px; max-width: 500px; }
+.game-title-bar {
+    width: 100%; background-color: #D2A679; color: #4A3B31; padding: 8px 15px;
+    border-radius: 5px; font-size: 1em; font-weight: bold; margin-bottom: 15px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-sizing: border-box; position: relative; top: -5px;
+}
+.game-title-bar::before, .game-title-bar::after { content: ''; width: 8px; height: 8px; background-color: #FFFFFF; border-radius: 50%;}
+.game-lives, #mp-player-scores-sidebar { font-size: 1.1em; letter-spacing: 2px; flex-basis: 25%; text-align: left; }
+.game-timer { font-size: 1.1em; flex-basis: 25%; text-align: right; }
+.game-mode-name { flex-grow: 1; text-align: center; font-size: 1.1em; }
+#mp-player-scores-sidebar { text-align: left; font-size: 0.8em; }
+#mp-player-scores-sidebar span { display: block; margin-bottom: 3px; font-weight: bold; }
+#mp-player-scores { list-style: none; padding: 0; margin: 0; font-size: 0.9em; max-height: 60px; overflow-y: auto;}
+#mp-player-scores li { padding: 1px 0; color: #5F4C3A; }
+
+.game-score { font-size: 1.4em; font-weight: bold; margin-bottom: 10px; color: #E8E8E8; }
+.game-category { font-size: 1em; margin-bottom: 10px; color: #C0C0C0; }
+.game-round-info { font-size: 0.9em; margin-bottom: 10px; color: #C0C0C0; }
+.game-emojis { font-size: clamp(2.5em, 7vw, 3.2em); margin: 15px 0 20px 0; letter-spacing: 10px; color: #FFFFFF; }
+.game-hint-button {
+    background-color: #2D2D2D; color: #E0E0E0; border: 2px solid #E0E0E0;
+    padding: 9px 18px; margin-bottom: 15px; border-radius: 25px; cursor: pointer;
+    font-size: 0.9em; font-weight: bold; transition: background-color 0.2s, color 0.2s;
+}
+.game-hint-button:hover { background-color: #E0E0E0; color: #2D2D2D; }
+.game-hint-button:disabled { background-color: #444; border-color: #555; color: #888; cursor: not-allowed; }
+.game-hint-text { font-size: 0.9em; color: #B0B0B0; margin-top: 5px; margin-bottom: 15px; min-height: 1.2em; }
+.game-answer-area { display: flex; align-items: center; width: 80%; margin-bottom: 15px; gap: 10px; }
+.game-answer-area input[type="text"] {
+    flex-grow: 1; background-color: #2D2D2D; color: #FFFFFF; border: 2px solid #E0E0E0;
+    border-radius: 25px; padding: 10px 18px; font-size: 0.95em;
+}
+.game-answer-area input[type="text"]::placeholder { color: #A0A0A0; }
+.game-submit-button {
+    background-color: #E0E0E0; color: #2D2D2D; border: none;
+    padding: 10px 18px; border-radius: 25px; font-size: 0.9em; font-weight: bold;
+    cursor: pointer; transition: background-color 0.2s; min-width: auto;
+}
+.game-submit-button:hover { background-color: #C8C8C8; }
+.game-quit-button {
+    background-color: #555; color: #E0E0E0; border: 1px solid #666;
+    padding: 8px 16px; margin-top: 10px; border-radius: 20px; font-size: 0.85em;
+}
+.game-quit-button:hover { background-color: #666; }
+
+/* --- Multiplayer Lobby Page --- */
+.lobby-blackboard { justify-content: flex-start; padding-top: 15px; }
+.lobby-join-section { display: flex; align-items: center; width: 90%; margin: 20px 0; gap: 10px; }
+#multiplayer-lobby input[type="text"] {
+    flex-grow: 1; background-color: #2D2D2D; color: #FFFFFF; border: 2px solid #E0E0E0;
+    border-radius: 25px; padding: 11px 18px; font-size: 0.9em;
+}
+#multiplayer-lobby input[type="text"]::placeholder { color: #A0A0A0; }
+#multiplayer-lobby #join-room-button {
+    background-color: #2D2D2D; color: #E0E0E0; border: 2px solid #E0E0E0;
+    padding: 11px 20px; border-radius: 25px; font-size: 0.9em; font-weight: bold;
+    cursor: pointer; transition: background-color 0.2s, color 0.2s; min-width: auto; margin: 0;
+}
+#multiplayer-lobby #join-room-button:hover { background-color: #E0E0E0; color: #2D2D2D; }
+.lobby-actions-bottom { display: flex; justify-content: space-around; width: 100%; margin-top: auto; padding-top: 20px; }
+#multiplayer-lobby #create-room-button,
+#multiplayer-lobby #lobby-back-button {
+    background-color: #2D2D2D; color: #E0E0E0; border: 2px solid #E0E0E0;
+    padding: 10px 0; border-radius: 25px; font-size: 0.9em; font-weight: bold;
+    width: 45%; cursor: pointer; transition: background-color 0.2s, color 0.2s; margin: 0;
+}
+#multiplayer-lobby #create-room-button:hover,
+#multiplayer-lobby #lobby-back-button:hover { background-color: #E0E0E0; color: #2D2D2D; }
+
+/* --- Multiplayer Room Page --- */
+.room-blackboard { padding-top: 15px; }
+#room-info-mp { margin-bottom: 15px; font-size: 0.95em; line-height: 1.5; }
+#room-info-mp p { margin: 3px 0; }
+#room-info-mp strong { color: #F0D0A0; }
+.room-invite-friend-button {
+    background-color: #2D2D2D; color: #E0E0E0; border: 2px solid #E0E0E0;
+    padding: 8px 15px; margin-bottom: 10px; border-radius: 20px; font-size: 0.85em;
+}
+.room-invite-friend-button:hover { background-color: #E0E0E0; color: #2D2D2D; }
+.player-list-title-mp { font-weight: bold; margin-top: 15px; margin-bottom: 5px; font-size: 1em; }
+.player-list-mp {
+    list-style: none; padding: 0; width: 85%; margin: 0 auto 15px auto; /* Centered list */
+    border: 1px solid #444; border-radius: 5px; background-color: #383838;
+    max-height: 120px; overflow-y: auto;
+}
+.player-list-mp li {
+    padding: 8px 12px; border-bottom: 1px solid #505050; color: #D0D0D0;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.player-list-mp li:last-child { border-bottom: none; }
+.player-list-mp .ready-status { color: #90EE90; margin-left: 10px; }
+.player-list-mp .not-ready-status { color: #FFD700; margin-left: 10px; }
+
+/* Styling for the friend invite section in Multiplayer Room */
+#mp-room-friend-invite-list-container {
+    width: 85%; /* Match player-list-mp width */
+    margin: 15px auto; /* Centered with top/bottom margin */
+}
+
+#mp-room-friend-invite-list-container h4 {
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 1em; /* Similar to .player-list-title-mp */
+    color: #E0E0E0; /* Standard text color for titles */
+    text-align: center; /* As per image */
+}
+
+.player-list-mp-invite { /* The UL element for inviting friends */
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #383838;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.player-list-mp-invite li {
+    padding: 8px 12px;
+    border-bottom: 1px solid #505050;
+    color: #D0D0D0;
+    display: flex;
+    justify-content: space-between; /* This is key for spacing out children */
+    align-items: center;
+}
+
+.player-list-mp-invite li:last-child {
+    border-bottom: none;
+}
+
+.player-list-mp-invite .friend-invite-info {
+    display: flex;
+    align-items: center;
+}
+
+.player-list-mp-invite .friend-invite-info .friend-name {
+    margin-right: 8px;
+}
+
+.player-list-mp-invite .invite-button-in-list {
+    background-color: #2D2D2D;
+    color: #E0E0E0;
+    border: 2px solid #E0E0E0;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    cursor: pointer;
+    min-width: auto;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.player-list-mp-invite .invite-button-in-list:hover {
+    background-color: #E0E0E0;
+    color: #2D2D2D;
+}
+
+.player-list-mp-invite .invite-button-in-list:disabled {
+    background-color: #555 !important;
+    color: #888 !important;
+    border-color: #666 !important;
+    cursor: not-allowed !important;
+}
+.player-list-mp-invite .invite-button-in-list:disabled:hover {
+    background-color: #555 !important;
+    color: #888 !important;
+}
+
+
+.invite-button {
+    background-color: #2D2D2D;
+    color: #E0E0E0;
+    border: 2px solid #E0E0E0;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    cursor: pointer;
+    min-width: auto;
+}
+.room-actions-mp { display: flex; justify-content: space-around; width: 100%; margin-top: 10px; }
+#multiplayer-room button:not(.room-invite-friend-button):not(.invite-button-in-list) {
+    background-color: #2D2D2D; color: #E0E0E0; border: 2px solid #E0E0E0;
+    padding: 9px 0; border-radius: 25px; font-size: 0.85em; font-weight: bold;
+    width: 30%; cursor: pointer; transition: background-color 0.2s, color 0.2s; margin: 0;
+}
+#multiplayer-room button:not(.room-invite-friend-button):not(.invite-button-in-list):hover { background-color: #E0E0E0; color: #2D2D2D; }
+#multiplayer-room button:disabled { background-color: #444 !important; border-color: #555 !important; color: #888 !important; cursor: not-allowed; }
+
+
+
+/* --- Friends Page --- */
+.friends-blackboard .main-menu-top-bar { margin-bottom: 20px; }
+
+.friend-search-container {
+    display: flex;
+    align-items: center;
+    width: 90%;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #777;
+    padding-bottom: 5px;
+}
+.search-icon {
+    font-size: 1.3em;
+    color: #E0E0E0;
+    margin-right: 10px;
+}
+
+.search-result-container {
+    background-color: #383838;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    width: 100%;
+}
+
+.search-result-text {
+    color: #E0E0E0;
+    text-align: left;
+    flex-grow: 1;
+}
+
+.add-friend-button {
+    background-color: #D2A679;
+    color: #2D2D2D;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    cursor: pointer;
+    margin-left: auto;
+    min-width: auto;
+}
+
+#friends-page #friend-search-input {
+    flex-grow: 1;
+    background-color: transparent;
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 0;
+    font-size: 1em;
+    outline: none;
+}
+#friends-page #friend-search-input::placeholder {
+    color: #A0A0A0;
+}
+
+.friends-list-container {
+    width: 90%;
+    margin: 0 auto 20px auto;
+}
+#friends-list {
+    list-style: none;
+    padding: 0;
+    max-height: 220px;
+    overflow-y: auto;
+}
+#friends-list li {
+    background-color: transparent;
+    border: none;
+    padding: 10px 5px;
+    margin-bottom: 8px;
+    border-radius: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    color: #E0E0E0;
+    font-size: 1.1em;
+}
+.friend-info {
+    display: flex;
+    align-items: center;
+}
+.friend-name {
+    margin-right: 10px;
+}
+.friend-status {
+    font-size: 0.75em;
+    padding: 3px 8px;
+    border-radius: 15px;
+    color: #2D2D2D;
+    font-weight: bold;
+    border: 1px solid;
+}
+.status-idle { background-color: #90EE90; border-color: #7ACD7A; }
+.status-in-game, .status-in-room { background-color: #FFB6C1; border-color: #FF99AA; }
+.status-offline { background-color: #A9A9A9; border-color: #888888; color: #E0E0E0; }
+
+.remove-friend-button-friends-page {
+    background-color: transparent;
+    color: #E0E0E0;
+    border: 1px solid #E0E0E0;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 1.2em;
+    line-height: 26px;
+    text-align: center;
+    padding: 0;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    min-width: 0;
+    margin-left: auto;
+}
+.remove-friend-button-friends-page:hover {
+    background-color: #E0E0E0;
+    color: #2D2D2D;
+}
+
+.friends-page-bottom-button {
+    background-color: #2D2D2D;
+    color: #E0E0E0;
+    border: 2px solid #E0E0E0;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    margin-top: auto;
+    width: 60%;
+    max-width: 220px;
+}
+.friends-page-bottom-button:hover {
+    background-color: #E0E0E0;
+    color: #2D2D2D;
+}
+
+/* --- General Fallbacks & Overrides --- */
+.hidden { display: none !important; } /* Keep this for general use */
+
+#current-user-info {
+    position: fixed; top: 10px; right: 10px; background-color: rgba(59, 59, 59, 0.9);
+    color: #FFFFFF; padding: 7px 10px; border-radius: 5px; font-size: 0.9em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.25); z-index: 1000;
+}
+#current-user-info #user-display { color: #E8E8E8; }
+#current-user-info button {
+    font-size: 0.8em; padding: 4px 7px; margin-left: 8px; background-color: #888888;
+    color: #FFFFFF; border: 1px solid #707070; min-width: auto; border-radius: 4px;
+}
+#current-user-info button:hover { background-color: #707070; }
+
+#loading-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); display: flex; flex-direction: column;
+    justify-content: center; align-items: center; z-index: 2000; color: white;
+}
+.spinner {
+    border: 5px solid #555; border-top: 5px solid #ddd; border-radius: 50%;
+    width: 40px; height: 40px; animation: spin 0.7s linear infinite; margin-bottom: 15px;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- Room Invite Notification Banner Styling --- */
+#room-invite-notification-popup {
+    position: fixed;
+    top: 0; /* Animated with transform */
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%); /* Initially off-screen */
+    width: 90%;
+    max-width: 480px; /* Constrain width */
+    background-color: #EADBCB; /* Parchment-like background */
+    border-radius: 0 0 12px 12px; /* Rounded bottom corners */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+    z-index: 5000; /* High z-index to appear on top */
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth transition */
+    /* display: none;  Will be controlled by a .visible class via JS */
+}
+
+#room-invite-notification-popup.visible {
+    transform: translateX(-50%) translateY(20px); /* Slide down to 20px from top */
+    /* display: block; /* Or flex, depending on inner content */
+}
+
+#room-invite-notification-popup .popup-content {
+    background-color: transparent; /* Parent handles background */
+    box-shadow: none; /* Parent handles shadow */
+    padding: 12px 15px 10px 15px; /* Adjusted padding */
+    min-width: auto;
+    max-width: 100%;
+    text-align: center;
+    position: relative; /* For the close button */
+    color: #5D4037; /* Default text color for the banner */
+}
+
+#room-invite-notification-popup h3 { /* Hide the original "房間邀請" title */
+    display: none;
+}
+
+#room-invite-message {
+    font-size: 0.95em; /* Slightly larger message text */
+    color: #5D4037;   /* Dark brown text */
+    margin-bottom: 12px;
+    font-weight: 500; /* Normal to semi-bold */
+    line-height: 1.4;
+}
+
+.room-invite-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Space between buttons */
+    margin-bottom: 10px;
+}
+
+#accept-room-invite-button,
+#decline-room-invite-button {
+    padding: 7px 22px; /* Adjusted padding */
+    border-radius: 18px; /* Slightly less rounded */
+    border: 1px solid; /* Thinner border */
+    font-weight: bold;
+    font-size: 0.85em; /* Adjusted font size */
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for buttons */
+}
+
+#accept-room-invite-button {
+    background-color: #C8E6C9; /* Light Green */
+    border-color: #A5D6A7;   /* Slightly darker green border */
+    color: #2E7D32;          /* Dark Green text */
+}
+#accept-room-invite-button:hover {
+    background-color: #B9DAB9;
+    border-color: #95C695;
+}
+
+#decline-room-invite-button {
+    background-color: #FFCDD2; /* Light Red */
+    border-color: #EF9A9A;   /* Slightly darker red border */
+    color: #C62828;          /* Dark Red text */
+}
+#decline-room-invite-button:hover {
+    background-color: #F4B6BA;
+    border-color: #E88488;
+}
+
+#room-invite-timer {
+    font-size: 0.8em;
+    color: #795548; /* Brownish text */
+    margin-top: 5px; /* Add some space above the timer */
+}
+
+.room-invite-banner-close-button {
+    position: absolute;
+    top: 8px;  /* Adjusted for new padding */
+    right: 10px; /* Adjusted for new padding */
+    background: none;
+    border: none;
+    font-size: 22px; /* Slightly larger X */
+    font-weight: bold;
+    color: #B71C1C; /* Stronger Red for X */
+    cursor: pointer;
+    padding: 0; /* Remove padding to make it tighter */
+    line-height: 1;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.room-invite-banner-close-button:hover {
+    opacity: 1;
+}
+
+/* Ensure original .popup-overlay and .popup-content for other popups are not affected if they exist */
+/* This is a general rule, if you have other popups, they should have their own distinct classes or IDs */
+.popup-overlay:not(#room-invite-notification-popup) {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.65); display: flex; justify-content: center;
+    align-items: center; z-index: 3000;
+}
+.popup-overlay:not(#room-invite-notification-popup) .popup-content {
+    background-color: white; padding: 25px 35px; border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center;
+    min-width: 300px; max-width: 90%; color: #333;
+    position: relative;
+}
+.popup-overlay:not(#room-invite-notification-popup) .popup-content h3 { margin-top: 0; color: #007bff; }
+.popup-overlay:not(#room-invite-notification-popup) .popup-content p { margin-bottom: 15px; }
+.popup-overlay:not(#room-invite-notification-popup) .popup-content button { margin: 5px; }
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 600px) {
+    body { padding-top: 0; justify-content: center; }
+    .container { padding: 10px; width: 100%; }
+
+    .blackboard-container { width: calc(100% - 20px); padding: 18px 15px 22px 15px; margin-top: 0; border-width: 15px; min-width: 0; }
+    #auth-page .blackboard-top-bar { height: 20px; top: -12px; width: 45%; }
+    #auth-page .blackboard-top-bar::before, #auth-page .blackboard-top-bar::after { width: 6px; height: 6px; }
+    .main-menu-top-bar { width: 60%; height: 26px; top: -15px; font-size: 1em; padding: 0 10px; }
+    .main-menu-top-bar::before, .main-menu-top-bar::after { width: 7px; height: 7px; }
+    .main-menu-top-bar span { line-height: 26px; }
+
+    #auth-page .blackboard-container h1 { font-size: clamp(1.9em, 6vw, 2.4em); margin-bottom: 18px; margin-top: 20px; }
+    #main-menu .blackboard-container h1.main-menu-game-title { font-size: clamp(1.9em, 6vw, 2.4em); margin-bottom: 18px; margin-top: 3px; padding: 7px 15px; border-width: 2px; }
+    #auth-page input[type="email"], #auth-page input[type="password"], #auth-page input[type="text"] { padding: 10px 16px; font-size: 0.85em; width: calc(100% - 32px); margin: 6px 0; }
+    #auth-page .auth-buttons { flex-direction: column; margin-top: 15px; margin-bottom: 10px; gap: 8px; }
+    #auth-page #login-button, #auth-page #guest-login-button, #auth-page #register-button { width: 100%; margin: 0; padding: 10px 0; font-size: 0.85em; }
+    #auth-page .auth-switch-link { margin-top: 10px; font-size: 0.75em; }
+    #main-menu #welcome-message { font-size: 0.85em; }
+    #main-menu button:not(#logout-button-main-menu):not(#main-menu-login-button) { width: 80%; font-size: 0.9em; padding: 9px 15px; margin: 5px 0; }
+    #main-menu #single-player-highscore-display { font-size: 0.75em; margin-top: 10px; }
+
+    .game-blackboard { padding: 12px 10px 15px 10px; }
+    .game-title-bar { padding: 6px 10px; margin-bottom: 10px; font-size: 0.9em; top: -2px;}
+    .game-title-bar::before, .game-title-bar::after { width: 6px; height: 6px;}
+    .game-lives, .game-timer, #mp-player-scores-sidebar { font-size: 0.95em; }
+    .game-mode-name { font-size: 1em; }
+    #mp-player-scores-sidebar { font-size: 0.75em;}
+    #mp-player-scores { font-size: 0.85em; max-height: 50px;}
+    .game-score { font-size: 1.2em; margin-bottom: 8px; }
+    .game-category, .game-round-info { font-size: 0.85em; margin-bottom: 8px; }
+    .game-emojis { font-size: clamp(2em, 6vw, 2.8em); margin: 10px 0 15px 0; letter-spacing: 8px; }
+    .game-hint-button { padding: 8px 15px; font-size: 0.85em; }
+    .game-hint-text { font-size: 0.85em; margin-bottom: 12px; }
+    .game-answer-area input[type="text"] { padding: 9px 15px; font-size: 0.9em; }
+    .game-submit-button { padding: 9px 15px; font-size: 0.85em; }
+    .game-quit-button { padding: 7px 14px; font-size: 0.8em; }
+
+    .lobby-join-section { width: 95%; margin: 15px 0; }
+    #multiplayer-lobby input[type="text"], #multiplayer-lobby #join-room-button { padding: 10px 15px; font-size: 0.85em; }
+    #multiplayer-lobby #create-room-button, #multiplayer-lobby #lobby-back-button { padding: 9px 0; font-size: 0.85em; width: 46%;}
+    .room-blackboard { padding: 15px 12px 20px 12px;}
+    #room-info-mp { font-size: 0.9em; margin-bottom: 12px; }
+    .room-invite-friend-button { padding: 7px 12px; font-size: 0.8em; }
+    .player-list-title-mp { font-size: 0.95em; }
+    .player-list-mp { width: 90%; max-height: 100px; }
+    .player-list-mp li { padding: 7px 10px; font-size: 0.9em;}
+    #multiplayer-room button:not(.room-invite-friend-button) { padding: 8px 0; font-size: 0.8em; width: 31%;}
+    /* Responsive for friend invite list in room */
+    #mp-room-friend-invite-list-container { width: 90%; }
+    #mp-room-friend-invite-list-container h4 { font-size: 0.9em; }
+    .player-list-mp-invite li { padding: 7px 10px; font-size: 0.9em; }
+    .player-list-mp-invite .invite-button-in-list { font-size: 0.75em; padding: 4px 8px; }
+
+
+    .friends-blackboard { padding: 18px 12px 22px 12px; min-height: 400px; }
+    .friends-blackboard .main-menu-top-bar { margin-bottom: 15px; font-size: 1em; }
+    .friend-search-container { width: 95%; margin-bottom: 15px; }
+    .search-icon { font-size: 1.1em; margin-right: 8px; }
+    #friends-page #friend-search-input { font-size: 0.9em; }
+    .friends-list-container { width: 95%; margin-bottom: 15px; }
+    #friends-list li { padding: 8px 3px; font-size: 1em; }
+    .friend-status { font-size: 0.7em; padding: 2px 6px; }
+    .remove-friend-button-friends-page { width: 24px; height: 24px; font-size: 1em; line-height: 22px;}
+    .friends-page-bottom-button { padding: 9px 20px; font-size: 0.85em; width: 55%; }
+
+
+    #friends-page, #sp-game-over-page { padding: 15px; margin-bottom: 15px; margin-top: 15px; width: calc(100% - 20px); }
+    #current-user-info { top: 5px; right: 5px; padding: 5px 8px; font-size: 0.8em; }
+    #current-user-info button { font-size: 0.75em; padding: 3px 5px; }
+    h1:not(#auth-page .blackboard-container h1):not(#main-menu .blackboard-container h1.main-menu-game-title) { font-size: 1.6em; }
+    h2:not(#auth-page #login-view h2):not(#auth-page #register-view h2) { font-size: 1.3em; }
+    
+    /* Responsive adjustments for the invite banner */
+    #room-invite-notification-popup {
+        width: 95%;
+        padding: 12px 15px 8px 15px;
+    }
+    #room-invite-notification-popup.visible {
+        transform: translateX(-50%) translateY(10px); /* Slide down a bit less on mobile */
+    }
+    #room-invite-message {
+        font-size: 0.9em;
+        margin-bottom: 10px;
+    }
+    .room-invite-actions {
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+    #accept-room-invite-button,
+    #decline-room-invite-button {
+        padding: 6px 18px;
+        font-size: 0.8em;
+    }
+    #room-invite-timer {
+        font-size: 0.75em;
+    }
+    .room-invite-banner-close-button {
+        top: 5px;
+        right: 8px;
+        font-size: 20px;
+    }
+
+    /* Ensure other popups are also responsive if needed */
+    .popup-overlay:not(#room-invite-notification-popup) .popup-content { 
+        padding: 18px 25px; min-width: 260px; 
+    }
+    .popup-overlay:not(#room-invite-notification-popup) .popup-content h3 { 
+        font-size: 1.2em; 
+    }
+}
