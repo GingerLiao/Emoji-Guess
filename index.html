@@ -74,9 +74,26 @@
                 <button id="single-player-button">單人模式</button>
                 <button id="multiplayer-button">多人模式</button>
                 <button id="friends-button">好友列表</button>
+                <button id="leaderboard-button">排行榜</button> <!-- 新增排行榜按鈕 -->
                 <div id="single-player-highscore-display">個人歷史最高紀錄: 101</div>
             </div>
         </div>
+        
+        <!-- Leaderboard Page -->
+        <div id="leaderboard-page" class="hidden">
+            <div class="blackboard-container friends-blackboard"> <!-- 重用 friends-blackboard 樣式以保持一致 -->
+                <div class="blackboard-top-bar main-menu-top-bar">
+                    <span>單人模式排行榜</span>
+                </div>
+                <div class="friends-list-container" style="max-height: 320px;"> <!-- 重用 friends-list-container 樣式 -->
+                    <ul id="leaderboard-list">
+                        <!-- Ranks will be populated by script.js -->
+                    </ul>
+                </div>
+                <button id="leaderboard-back-button" class="friends-page-bottom-button">返回遊戲大廳</button>
+            </div>
+        </div>
+
 
         <!-- Single Player Game -->
         <div id="single-player-game" class="hidden">

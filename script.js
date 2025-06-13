@@ -105,16 +105,11 @@ const spHighScoreDisplay = document.getElementById('single-player-highscore-disp
 const mainMenuLoginButton = document.getElementById('main-menu-login-button');
 
 // New Leaderboard Elements
-const leaderboardContainer = document.createElement('div');
-leaderboardContainer.id = 'leaderboard-container';
-const leaderboardList = document.createElement('ol');
-leaderboardList.id = 'leaderboard-list';
-const leaderboardTitle = document.createElement('h3');
-leaderboardTitle.textContent = '單人模式排行榜';
-leaderboardTitle.style.color = '#E0E0E0';
-leaderboardTitle.style.marginBottom = '10px';
-leaderboardContainer.appendChild(leaderboardTitle);
-leaderboardContainer.appendChild(leaderboardList);
+const leaderboardButton = document.getElementById('leaderboard-button');
+const leaderboardPage = document.getElementById('leaderboard-page');
+const leaderboardList = document.getElementById('leaderboard-list');
+const leaderboardBackButton = document.getElementById('leaderboard-back-button');
+
 
 const spGameOverPage = document.getElementById('sp-game-over-page');
 const spGameOverMessage = document.getElementById('sp-game-over-message');
@@ -208,6 +203,7 @@ function showPage(pageElement) {
     authPage.classList.add('hidden');
     mainMenuPage.classList.add('hidden');
     friendsPage.classList.add('hidden');
+    leaderboardPage.classList.add('hidden'); // Hide leaderboard page
     singlePlayerGamePage.classList.add('hidden');
     multiplayerLobbyPage.classList.add('hidden');
     multiplayerRoomPage.classList.add('hidden');
@@ -246,52 +242,57 @@ function shuffleArray(array) {
     return newArray;
 }
 
-async function detachUserFirebaseListeners() {
-    userListeners.forEach(listener => {
-        if (listener.ref && listener.eventType && listener.callback) {
-            listener.ref.off(listener.eventType, listener.callback);
-        }
-    });
-    userListeners = [];
+// async function detachUserFirebaseListeners() {
+//     userListeners.forEach(listener => {
+//         if (listener.ref && listener.eventType && listener.callback) {
+//             listener.ref.off(listener.eventType, listener.callback);
+//         }
+//     });
+//     userListeners = [];
 
-    if (userStatusRef) {
-        await userStatusRef.onDisconnect().cancel();
-        await userStatusRef.set('offline');
-        userStatusRef = null;
-    }
+//     if (userStatusRef) {
+//         await userStatusRef.onDisconnect().cancel();
+//         await userStatusRef.set('offline');
+//         userStatusRef = null;
+//     }
 
-    if (roomInvitesListener && currentUser) {
-        db.ref(`room_invites/${currentUser.uid}`).off('value', roomInvitesListener);
-        roomInvitesListener = null;
-    }
+//     if (roomInvitesListener && currentUser) {
+//         db.ref(`room_invites/${currentUser.uid}`).off('value', roomInvitesListener);
+//         roomInvitesListener = null;
+//     }
 
-    if (friendRequestsListener && currentUser) {
-         db.ref(`users/${currentUser.uid}/friend_invites_received`).off('value', friendRequestsListener);
-    }
-    friendRequestsListener = null;
+//     if (friendRequestsListener && currentUser) {
+//          db.ref(`users/${currentUser.uid}/friend_invites_received`).off('value', friendRequestsListener);
+//     }
+//     friendRequestsListener = null;
 
 
-    Object.values(friendStatusListeners).forEach(listenerInfo => {
-        if (listenerInfo && listenerInfo.ref && listenerInfo.callback) {
-            listenerInfo.ref.off('value', listenerInfo.callback);
-        }
-    });
-    friendStatusListeners = {};
+//     Object.values(friendStatusListeners).forEach(listenerInfo => {
+//         if (listenerInfo && listenerInfo.ref && listenerInfo.callback) {
+//             listenerInfo.ref.off('value', listenerInfo.callback);
+//         }
+//     });
+//     friendStatusListeners = {};
 
-    if (roomListener && roomListener.roomId) {
-        db.ref(`rooms/${roomListener.roomId}`).off('value', roomListener.callback);
-        roomListener = null;
-    }
-    if (mpGameDataListener && mpGameDataListener.roomId) {
-        db.ref(`rooms/${mpGameDataListener.roomId}/gameData`).off('value', mpGameDataListener.callback);
-        mpGameDataListener = null;
-    }
+//     if (roomListener && roomListener.roomId) {
+//         db.ref(`rooms/${roomListener.roomId}`).off('value', roomListener.callback);
+//         roomListener = null;
+//     }
+//     if (mpGameDataListener && mpGameDataListener.roomId) {
+//         db.ref(`rooms/${mpGameDataListener.roomId}/gameData`).off('value', mpGameDataListener.callback);
+//         mpGameDataListener = null;
+//     }
 
-    if (friendsListener && currentUser) {
-        db.ref(`users/${currentUser.uid}/friends`).off('value', friendsListener);
-    }
-    friendsListener = null;
-}
+//     if (friendsListener && currentUser) {
+//         db.ref(`users/${currentUser.uid}/friends`).off('value', friendsListener);
+//     }
+//     friendsListener = null;
+
+//     if (leaderboardListener) {
+//         db.ref('users').off('value', leaderboardListener);
+//         leaderboardListener = null;
+//     }
+// }
 
 
 // --- Load Questions ---
@@ -361,7 +362,7 @@ async function initializePresenceSystem() {
 // --- Authentication ---
 auth.onAuthStateChanged(async user => {
     showLoading("正在驗證使用者...");
-    await detachUserFirebaseListeners();
+    // await detachUserFirebaseListeners();
 
     if (user) {
         currentUser = user;
@@ -483,6 +484,7 @@ registerButton.addEventListener('click', async () => {
         const updates = {};
         updates[`users/${user.uid}/profile`] = userProfileData;
         updates[`users/${user.uid}/status`] = 'online_idle';
+        updates[`users/${user.uid}/singlePlayerHighScore`] = 0; // Initialize high score
         updates[`usernames/${username}`] = user.uid;
 
         await db.ref().update(updates);
@@ -576,9 +578,23 @@ friendsButton.addEventListener('click', () => {
     }
 });
 
+leaderboardButton.addEventListener('click', () => {
+    showPage(leaderboardPage);
+    initializeLeaderboardListener();
+});
+
+
 friendsBackButton.addEventListener('click', () => showPage(mainMenuPage));
 lobbyBackButton.addEventListener('click', () => showPage(mainMenuPage));
 spReturnToMainMenuButton.addEventListener('click', () => showPage(mainMenuPage));
+leaderboardBackButton.addEventListener('click', () => {
+    showPage(mainMenuPage);
+    if (leaderboardListener) {
+        db.ref('users').off('value', leaderboardListener);
+        leaderboardListener = null;
+    }
+});
+
 
 // --- High Score Handling ---
 async function loadUserHighScore() {
@@ -911,12 +927,12 @@ async function sendFriendRequest(targetUid, targetUsername) {
 
     const existingRequestSnapshot = await db.ref(`users/${targetUid}/friend_invites_received/${currentUserUid}`).once('value');
     if (existingRequestSnapshot.exists() && existingRequestSnapshot.val().status === 'pending') {
-        displayMessage(friendSearchResultsDiv, `已向 ${targetUsername} 發送好友邀請`, false);
+        alert(`已向 ${targetUsername} 發送好友邀請`);
         hideLoading();
         return;
     }
     if (friendsList[targetUid]) {
-        displayMessage(friendSearchResultsDiv, `${targetUsername} 已經是你的好友了`, false);
+        alert(`${targetUsername} 已經是你的好友了`);
         hideLoading();
         return;
     }
@@ -935,10 +951,10 @@ async function sendFriendRequest(targetUid, targetUsername) {
 
     try {
         await db.ref().update(updates);
-        displayMessage(friendSearchResultsDiv, `已向 ${targetUsername} 發送好友邀請！</p>`, false);
+        alert(`已向 ${targetUsername} 發送好友邀請！`);
     } catch (error) {
         console.error("發送好友邀請失敗:", error);
-        displayMessage(friendSearchResultsDiv, `<p class="error-message" style="color: #FFB6C1; margin-top: 10px;">發送邀請失敗</p>`, true);
+        alert("發送邀請失敗");
     } finally {
         hideLoading();
     }
@@ -1052,6 +1068,103 @@ function renderFriendsList() {
         if(noFriendsP) noFriendsP.classList.add('hidden');
     }
 }
+
+// --- Leaderboard Logic ---
+function initializeLeaderboardListener() {
+    if (leaderboardListener) {
+        db.ref('users').off('value', leaderboardListener);
+    }
+    showLoading("載入排行榜...");
+    const leaderboardRef = db.ref('users').orderByChild('singlePlayerHighScore').limitToLast(100);
+    leaderboardListener = leaderboardRef.on('value', snapshot => {
+        const usersData = snapshot.val() || {};
+        leaderboardData = Object.entries(usersData)
+            .map(([uid, data]) => ({
+                uid: uid,
+                username: data.profile?.username || '匿名玩家',
+                score: data.singlePlayerHighScore || 0
+            }))
+            .filter(p => p.score > 0)
+            .sort((a, b) => b.score - a.score);
+        renderLeaderboard();
+        hideLoading();
+    }, error => {
+        console.error("讀取排行榜失敗:", error);
+        leaderboardList.innerHTML = '<li>無法載入排行榜資料。</li>';
+        hideLoading();
+    });
+}
+
+function renderLeaderboard() {
+    leaderboardList.innerHTML = '';
+    if (leaderboardData.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = '排行榜目前是空的，快去挑戰單人模式吧！';
+        li.style.justifyContent = 'center';
+        leaderboardList.appendChild(li);
+        return;
+    }
+
+    leaderboardData.forEach((player, index) => {
+        const li = document.createElement('li');
+        li.className = 'leaderboard-item';
+
+        const rankSpan = document.createElement('span');
+        rankSpan.className = 'leaderboard-rank';
+        rankSpan.textContent = `${index + 1}`;
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'leaderboard-name';
+        nameSpan.textContent = player.username;
+
+        const scoreSpan = document.createElement('span');
+        scoreSpan.className = 'leaderboard-score';
+        scoreSpan.textContent = player.score;
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'leaderboard-button-container';
+
+        const addButton = document.createElement('button');
+        addButton.textContent = '加為好友';
+        addButton.className = 'add-friend-button';
+        addButton.dataset.uid = player.uid;
+        addButton.dataset.username = player.username;
+
+        if (isGuest) {
+            addButton.disabled = true;
+            addButton.title = "訪客無法加好友";
+        } else if (currentUser && currentUser.uid === player.uid) {
+            addButton.style.display = 'none';
+        } else if (friendsList[player.uid]) {
+            addButton.disabled = true;
+            addButton.textContent = '已是好友';
+        }
+        
+        buttonContainer.appendChild(addButton);
+        li.appendChild(rankSpan);
+        li.appendChild(nameSpan);
+        li.appendChild(scoreSpan);
+        li.appendChild(buttonContainer);
+        leaderboardList.appendChild(li);
+    });
+}
+
+leaderboardList.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('add-friend-button')) {
+        if (isGuest) {
+            alert('請先登入以使用好友功能');
+            return;
+        }
+        const button = e.target;
+        const targetUid = button.dataset.uid;
+        const targetUsername = button.dataset.username;
+        
+        button.disabled = true;
+        await sendFriendRequest(targetUid, targetUsername);
+        button.textContent = '已發送';
+    }
+});
+
 
 // --- Multiplayer Lobby Logic ---
 createRoomButton.addEventListener('click', async () => {

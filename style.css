@@ -59,10 +59,10 @@ body {
     padding: 20px 25px 25px 25px;
     max-width: 600px;
 }
-.friends-blackboard { /* 好友列表頁的黑板特定樣式 */
+.friends-blackboard { /* 好友列表頁和排行榜頁的黑板特定樣式 */
     padding: 20px 25px 30px 25px; /* 增加底部 padding 給返回按鈕 */
     max-width:600px;
-    min-height: 450px; /* 給好友列表一個最小高度 */
+    min-height: 450px; /* 給列表一個最小高度 */
     justify-content: flex-start; /* 內容從頂部開始排列 */
 }
 
@@ -74,7 +74,8 @@ body {
 #multiplayer-room,
 #multiplayer-game,
 #sp-game-over-page,
-#friends-page {
+#friends-page,
+#leaderboard-page { /* 新增排行榜頁面 */
     background-color: transparent;
     padding: 0;
     border-radius: 0;
@@ -515,6 +516,48 @@ button:disabled:hover {
     color: #2D2D2D;
 }
 
+/* --- Leaderboard Page --- */
+#leaderboard-list {
+    list-style: none; /* Changed from decimal to none for custom styling */
+    padding: 0;
+    width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+}
+#leaderboard-list li.leaderboard-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 5px;
+    border-bottom: 1px solid #555;
+    color: #E0E0E0;
+    font-size: 1em;
+}
+#leaderboard-list li:last-child {
+    border-bottom: none;
+}
+.leaderboard-rank {
+    flex-basis: 15%;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #D2A679;
+}
+.leaderboard-name {
+    flex-grow: 1;
+    text-align: left;
+    padding-left: 10px;
+}
+.leaderboard-score {
+    flex-basis: 20%;
+    text-align: right;
+    font-weight: bold;
+}
+.leaderboard-button-container {
+    flex-basis: 25%;
+    text-align: right;
+}
+
+
 /* --- General Fallbacks & Overrides --- */
 .hidden { display: none !important; } /* Keep this for general use */
 
@@ -732,6 +775,19 @@ button:disabled:hover {
     .friend-status { font-size: 0.7em; padding: 2px 6px; }
     .remove-friend-button-friends-page { width: 24px; height: 24px; font-size: 1em; line-height: 22px;}
     .friends-page-bottom-button { padding: 9px 20px; font-size: 0.85em; width: 55%; }
+    
+    /* Responsive for Leaderboard */
+    #leaderboard-list li.leaderboard-item {
+        font-size: 0.9em;
+        padding: 8px 2px;
+    }
+    .leaderboard-name {
+        padding-left: 5px;
+    }
+    .leaderboard-button-container .add-friend-button {
+        padding: 5px 8px;
+        font-size: 0.75em;
+    }
 
 
     #friends-page, #sp-game-over-page { padding: 15px; margin-bottom: 15px; margin-top: 15px; width: calc(100% - 20px); }
