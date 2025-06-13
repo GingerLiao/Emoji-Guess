@@ -673,7 +673,7 @@ function loadNextSpQuestion() {
         spTimerDisplay.textContent = `⏳: ${spTimeLeft}`;
         if (spTimeLeft <= 0) {
             clearInterval(spTimerInterval);
-            displayMessage(spMessage, `時間到！`, true);
+            // The message is now handled in handleSpIncorrectAnswer
             handleSpIncorrectAnswer(true);
         }
     }, 1000);
@@ -692,16 +692,19 @@ function handleSpCorrectAnswer() {
 function handleSpIncorrectAnswer(isTimeout = false) {
     spLives--;
     updateSpUi();
+    clearInterval(spTimerInterval);
 
-    if (!isTimeout) {
-        displayMessage(spMessage, `答錯了！`, true);
+    const correctAnswer = spQuestions[spCurrentQuestionIndex].answer;
+    
+    if (isTimeout) {
+        displayMessage(spMessage, `時間到！正確答案為: ${correctAnswer}`, true);
+    } else {
+        displayMessage(spMessage, `答錯了！正確答案為: ${correctAnswer}`, true);
     }
 
     if (spLives <= 0) {
-        clearInterval(spTimerInterval);
         endSinglePlayerGame("遊戲結束！");
     } else {
-        clearInterval(spTimerInterval);
         spCurrentQuestionIndex++;
         setTimeout(loadNextSpQuestion, 2500);
     }
