@@ -56,18 +56,6 @@ let friendsListener = null;
 let friendRequestsListener = null; // Keep this for friend request notifications
 const sentRoomInvitesCooldown = {}; // { 'friendUid_roomId': timestamp }
 
-// Friend Request Notification Popup Variables
-let friendRequestNotificationPopup = null;
-let friendRequestMessage = null;
-let friendRequestTimerDisplay = null;
-let acceptFriendRequestButton = null;
-let declineFriendRequestButton = null;
-let closeFriendRequestPopupButton = null;
-
-let activeFriendRequestData = null; // Stores current active request being shown on popup
-let friendRequestTimeoutId = null; // For the 10s notification timeout
-let friendRequestTimerIntervalId = null; // For the 1s countdown display
-
 // Leaderboard State
 let leaderboardData = [];
 let leaderboardListener = null;
@@ -179,15 +167,7 @@ const roomInviteMessage = document.getElementById('room-invite-message');
 const roomInviteTimerDisplay = document.getElementById('room-invite-timer');
 const acceptRoomInviteButton = document.getElementById('accept-room-invite-button');
 const declineRoomInviteButton = document.getElementById('decline-room-invite-button');
-const roomInviteBannerCloseButton = document.getElementById('room-invite-banner-close-button'); // New close button
-
-// Friend Request Notification Popup Elements (assuming it remains a modal)
-friendRequestNotificationPopup = document.getElementById('friend-request-notification-popup');
-friendRequestMessage = document.getElementById('friend-request-message');
-friendRequestTimerDisplay = document.getElementById('friend-request-timer');
-acceptFriendRequestButton = document.getElementById('accept-friend-request-button');
-declineFriendRequestButton = document.getElementById('decline-friend-request-button');
-closeFriendRequestPopupButton = document.getElementById('close-friend-request-popup');
+const roomInviteBannerCloseButton = document.getElementById('room-invite-banner-close-button');
 
 
 // --- Utility Functions ---
@@ -203,7 +183,7 @@ function showPage(pageElement) {
     authPage.classList.add('hidden');
     mainMenuPage.classList.add('hidden');
     friendsPage.classList.add('hidden');
-    leaderboardPage.classList.add('hidden'); // Hide leaderboard page
+    leaderboardPage.classList.add('hidden');
     singlePlayerGamePage.classList.add('hidden');
     multiplayerLobbyPage.classList.add('hidden');
     multiplayerRoomPage.classList.add('hidden');
@@ -219,18 +199,13 @@ function showPage(pageElement) {
 function displayMessage(element, message, isError = true) {
     if (!element) return;
     element.textContent = message;
-    if (isError) {
-        element.className = 'error-message'; 
-    } else {
-        element.className = 'success-message'; 
-    }
-    element.classList.remove('hidden'); 
+    element.style.color = isError ? '#FFB6C1' : '#90EE90';
+    element.classList.remove('hidden');
 }
 function clearMessage(element) {
     if (!element) return;
     element.textContent = '';
-    element.classList.add('hidden'); 
-    element.className = 'message-area'; 
+    element.classList.add('hidden');
 }
 
 function shuffleArray(array) {
@@ -242,57 +217,58 @@ function shuffleArray(array) {
     return newArray;
 }
 
-// async function detachUserFirebaseListeners() {
-//     userListeners.forEach(listener => {
-//         if (listener.ref && listener.eventType && listener.callback) {
-//             listener.ref.off(listener.eventType, listener.callback);
-//         }
-//     });
-//     userListeners = [];
+async function detachUserFirebaseListeners() {
+    userListeners.forEach(listener => {
+        if (listener.ref && listener.eventType && listener.callback) {
+            listener.ref.off(listener.eventType, listener.callback);
+        }
+    });
+    userListeners = [];
 
-//     if (userStatusRef) {
-//         await userStatusRef.onDisconnect().cancel();
-//         await userStatusRef.set('offline');
-//         userStatusRef = null;
-//     }
+    if (userStatusRef) {
+        await userStatusRef.onDisconnect().cancel();
+        // This write on logout was causing permission errors. It's safe to remove
+        // as the click handler already sets the status to offline.
+        // await userStatusRef.set('offline'); 
+        userStatusRef = null;
+    }
 
-//     if (roomInvitesListener && currentUser) {
-//         db.ref(`room_invites/${currentUser.uid}`).off('value', roomInvitesListener);
-//         roomInvitesListener = null;
-//     }
+    if (roomInvitesListener && currentUser) {
+        db.ref(`room_invites/${currentUser.uid}`).off('value', roomInvitesListener);
+        roomInvitesListener = null;
+    }
 
-//     if (friendRequestsListener && currentUser) {
-//          db.ref(`users/${currentUser.uid}/friend_invites_received`).off('value', friendRequestsListener);
-//     }
-//     friendRequestsListener = null;
+    if (friendRequestsListener && currentUser) {
+         db.ref(`users/${currentUser.uid}/friend_invites_received`).off('value', friendRequestsListener);
+    }
+    friendRequestsListener = null;
 
+    Object.values(friendStatusListeners).forEach(listenerInfo => {
+        if (listenerInfo && listenerInfo.ref && listenerInfo.callback) {
+            listenerInfo.ref.off('value', listenerInfo.callback);
+        }
+    });
+    friendStatusListeners = {};
 
-//     Object.values(friendStatusListeners).forEach(listenerInfo => {
-//         if (listenerInfo && listenerInfo.ref && listenerInfo.callback) {
-//             listenerInfo.ref.off('value', listenerInfo.callback);
-//         }
-//     });
-//     friendStatusListeners = {};
+    if (roomListener && roomListener.roomId) {
+        db.ref(`rooms/${roomListener.roomId}`).off('value', roomListener.callback);
+        roomListener = null;
+    }
+    if (mpGameDataListener && mpGameDataListener.roomId) {
+        db.ref(`rooms/${mpGameDataListener.roomId}/gameData`).off('value', mpGameDataListener.callback);
+        mpGameDataListener = null;
+    }
 
-//     if (roomListener && roomListener.roomId) {
-//         db.ref(`rooms/${roomListener.roomId}`).off('value', roomListener.callback);
-//         roomListener = null;
-//     }
-//     if (mpGameDataListener && mpGameDataListener.roomId) {
-//         db.ref(`rooms/${mpGameDataListener.roomId}/gameData`).off('value', mpGameDataListener.callback);
-//         mpGameDataListener = null;
-//     }
+    if (friendsListener && currentUser) {
+        db.ref(`users/${currentUser.uid}/friends`).off('value', friendsListener);
+    }
+    friendsListener = null;
 
-//     if (friendsListener && currentUser) {
-//         db.ref(`users/${currentUser.uid}/friends`).off('value', friendsListener);
-//     }
-//     friendsListener = null;
-
-//     if (leaderboardListener) {
-//         db.ref('users').off('value', leaderboardListener);
-//         leaderboardListener = null;
-//     }
-// }
+    if (leaderboardListener) {
+        db.ref('users').off('value', leaderboardListener);
+        leaderboardListener = null;
+    }
+}
 
 
 // --- Load Questions ---
@@ -362,7 +338,7 @@ async function initializePresenceSystem() {
 // --- Authentication ---
 auth.onAuthStateChanged(async user => {
     showLoading("正在驗證使用者...");
-    // await detachUserFirebaseListeners();
+    await detachUserFirebaseListeners();
 
     if (user) {
         currentUser = user;
@@ -514,8 +490,7 @@ logoutButton.addEventListener('click', async () => {
         })
         .catch(error => {
             console.error("登出錯誤:", error);
-            currentUser = null; currentUsername = '訪客'; isGuest = true;
-            showPage(authPage);
+            alert("登出時發生錯誤，請檢查網路連線後重試。");
         })
         .finally(hideLoading);
 });
@@ -689,7 +664,6 @@ function loadNextSpQuestion() {
         spTimerDisplay.textContent = `⏳: ${spTimeLeft}`;
         if (spTimeLeft <= 0) {
             clearInterval(spTimerInterval);
-            // The message is now handled in handleSpIncorrectAnswer
             handleSpIncorrectAnswer(true);
         }
     }, 1000);
@@ -780,15 +754,15 @@ async function performFriendSearch() {
     friendSearchResultsDiv.innerHTML = '';
 
     if (!searchTerm) {
-        friendSearchResultsDiv.innerHTML = '<p class="error-message" style="color: #FFB6C1; margin-top: 10px;">請輸入使用者名稱進行搜尋</p>';
+        friendSearchResultsDiv.innerHTML = '<p style="color: #FFB6C1; margin-top: 10px;">請輸入使用者名稱進行搜尋</p>';
         return;
     }
     if (searchTerm === currentUsername) {
-        friendSearchResultsDiv.innerHTML = '<p class="message-area" style="color: #E0E0E0; margin-top: 10px;">你不能加自己為好友</p>';
+        friendSearchResultsDiv.innerHTML = '<p style="color: #E0E0E0; margin-top: 10px;">你不能加自己為好友</p>';
         return;
     }
     if (!auth.currentUser) {
-        friendSearchResultsDiv.innerHTML = '<p class="error-message" style="color: #FFB6C1; margin-top: 10px;">您似乎尚未登入，請重新登入後再試</p>';
+        friendSearchResultsDiv.innerHTML = '<p style="color: #FFB6C1; margin-top: 10px;">您似乎尚未登入，請重新登入後再試</p>';
         return;
     }
 
@@ -798,15 +772,15 @@ async function performFriendSearch() {
         if (usernameSnapshot.exists()) {
             const targetUid = usernameSnapshot.val();
             if (friendsList[targetUid]) {
-                friendSearchResultsDiv.innerHTML = `<p class="message-area" style="color: #E0E0E0; margin-top: 10px;">${searchTerm} 已經是你的好友了</p>`;
+                friendSearchResultsDiv.innerHTML = `<p style="color: #E0E0E0; margin-top: 10px;">${searchTerm} 已經是你的好友了</p>`;
             } else {
                 const sentInviteSnapshot = await db.ref(`users/${currentUser.uid}/friend_invites_sent/${targetUid}`).once('value');
                 const receivedInviteSnapshot = await db.ref(`users/${currentUser.uid}/friend_invites_received/${targetUid}`).once('value');
 
                 if (sentInviteSnapshot.exists() && sentInviteSnapshot.val().status === 'pending'){
-                     friendSearchResultsDiv.innerHTML = `<p class="message-area" style="color: #E0E0E0; margin-top: 10px;">已向 ${searchTerm} 發送好友邀請`;
+                     friendSearchResultsDiv.innerHTML = `<p style="color: #E0E0E0; margin-top: 10px;">已向 ${searchTerm} 發送好友邀請</p>`;
                 } else if (receivedInviteSnapshot.exists() && receivedInviteSnapshot.val().status === 'pending'){
-                     friendSearchResultsDiv.innerHTML = `<p class="message-area" style="color: #E0E0E0; margin-top: 10px;">你已收到 ${searchTerm} 的好友邀請，請至通知查看</p>`;
+                     friendSearchResultsDiv.innerHTML = `<p style="color: #E0E0E0; margin-top: 10px;">你已收到 ${searchTerm} 的好友邀請，請在本頁面查看</p>`;
                 }
                 else {
                     friendSearchResultsDiv.innerHTML = `
@@ -817,15 +791,11 @@ async function performFriendSearch() {
                 }
             }
         } else {
-            friendSearchResultsDiv.innerHTML = `<p class="error-message" style="color: #FFB6C1; margin-top: 10px;">找不到使用者 "${searchTerm}"</p>`;
+            friendSearchResultsDiv.innerHTML = `<p style="color: #FFB6C1; margin-top: 10px;">找不到使用者 "${searchTerm}"</p>`;
         }
     } catch (error) {
         console.error("搜尋使用者錯誤:", error);
-        if (error.code === "PERMISSION_DENIED") {
-            friendSearchResultsDiv.innerHTML = `<p class="error-message" style="color: #FFB6C1; margin-top: 10px;">搜尋使用者時發生權限問題</p>`;
-        } else {
-            friendSearchResultsDiv.innerHTML = `<p class="error-message" style="color: #FFB6C1; margin-top: 10px;">搜尋時發生錯誤</p>`;
-        }
+        friendSearchResultsDiv.innerHTML = `<p style="color: #FFB6C1; margin-top: 10px;">搜尋時發生錯誤</p>`;
     } finally {
         hideLoading();
     }
@@ -840,7 +810,6 @@ function initializeFriendsSystem() {
         friendSearchInput.removeEventListener('keypress', handleFriendSearchKeypress); 
         friendSearchInput.addEventListener('keypress', handleFriendSearchKeypress);
     }
-
 
     const friendsRef = db.ref(`users/${currentUser.uid}/friends`);
     friendsListener = friendsRef.on('value', snapshot => {
@@ -882,7 +851,6 @@ async function handleFriendSearchKeypress(e) {
     }
 }
 
-
 function clearFriendsUI() {
     friendsListUl.innerHTML = '';
     friendSearchResultsDiv.innerHTML = '';
@@ -903,12 +871,10 @@ friendsPage.addEventListener('click', async (e) => {
         const senderUid = e.target.dataset.uid;
         const senderUsername = e.target.dataset.username;
         await acceptFriendRequest(senderUid, senderUsername);
-        renderFriendsList(); 
     }
     else if (e.target.classList.contains('decline-request-button')) {
         const senderUid = e.target.dataset.uid;
         await declineFriendRequest(senderUid);
-        renderFriendsList(); 
     }
     else if (e.target.classList.contains('remove-friend-button-friends-page')) {
         const friendUid = e.target.dataset.uid;
@@ -1027,28 +993,31 @@ function renderFriendsList() {
     let hasFriends = false;
     let hasFriendRequests = false;
 
+    // Render pending friend requests first
     Object.entries(friendRequestsReceived).forEach(([senderUid, requestData]) => {
         hasFriendRequests = true;
         const li = document.createElement('li');
+        li.className = 'friend-request-item'; // Add a class for styling
         li.innerHTML = `
             <div class="friend-info">
-                <span class="friend-name">${requestData.senderUsername} 邀請你成為好友</span>
+                <span class="friend-name">${requestData.senderUsername}</span>
             </div>
-            <div>
-                <button class="accept-request-button" data-uid="${senderUid}" data-username="${requestData.senderUsername}" style="background-color: #D2A679; color: #2D2D2D; border: none; padding: 6px 12px; border-radius: 15px; font-size: 0.8em; cursor: pointer;">接受</button>
-                <button class="decline-request-button" data-uid="${senderUid}" style="background-color: #FFB6C1; color: #2D2D2D; border: none; padding: 6px 12px; border-radius: 15px; font-size: 0.8em; cursor: pointer;">拒絕</button>
+            <div class="friend-request-actions">
+                <button class="accept-request-button" data-uid="${senderUid}" data-username="${requestData.senderUsername}">接受</button>
+                <button class="decline-request-button" data-uid="${senderUid}">拒絕</button>
             </div>
         `;
         friendsListUl.appendChild(li);
     });
 
+    // Then render existing friends
     Object.entries(friendsList).forEach(([uid, username]) => {
         hasFriends = true;
         const status = friendStatuses[uid] || 'offline';
         let statusText = '離線';
         let statusClass = 'status-offline';
         if (status === 'online_idle') { statusText = '空閒'; statusClass = 'status-idle'; }
-        else if (status === 'online_in_room_waiting') { statusText = '房間中'; statusClass = 'status-in-room'; }
+        else if (status === 'online_in_room_waiting') { statusText = '組隊中'; statusClass = 'status-in-room'; }
         else if (status === 'online_in_game') { statusText = '遊戲中'; statusClass = 'status-in-game'; }
 
         const li = document.createElement('li');
@@ -1851,31 +1820,23 @@ function initializeRoomInviteListener() {
                 pendingInvites.sort((a, b) => b[1].timestamp - a[1].timestamp);
                 const [latestInviteKey, latestInvite] = pendingInvites[0];
                 if (!activeRoomInviteData || activeRoomInviteData.inviteKey !== latestInviteKey) {
-                    if (roomInviteNotificationPopup.classList.contains('visible')) { // Check for .visible
-                        hideRoomInvitePopup(); // Hide current before showing new
+                    if (roomInviteNotificationPopup.classList.contains('visible')) {
+                        hideRoomInvitePopup();
                     }
                     showRoomInvitePopup(latestInvite, latestInviteKey);
                 }
             } else {
-                // No pending invites, or the active one is no longer pending
                 if (activeRoomInviteData && (!invites[activeRoomInviteData.inviteKey] || invites[activeRoomInviteData.inviteKey].status !== 'pending')) {
                     hideRoomInvitePopup();
                 }
             }
-        } else { // No invites at all for the user
+        } else {
             hideRoomInvitePopup();
         }
     });
 }
 
 function showRoomInvitePopup(invite, inviteKey) {
-    if (friendRequestNotificationPopup && !friendRequestNotificationPopup.classList.contains('hidden')) {
-        // Assuming friend request is a modal and should be hidden if a room invite banner appears
-        // Or, decide on prioritization logic (e.g., only show one type at a time)
-        // For now, let's assume room invite takes precedence or they can overlap if styled correctly.
-        // Given the slide-down nature, it might be okay to overlap or briefly hide the other.
-    }
-
     if (currentRoomId && currentRoomId !== invite.roomId) {
         db.ref(`room_invites/${currentUser.uid}/${inviteKey}`).update({ status: 'declined_busy' }); return;
     }
@@ -1887,7 +1848,7 @@ function showRoomInvitePopup(invite, inviteKey) {
         inviterUsername: invite.inviterUsername, roomName: invite.roomName
     };
     roomInviteMessage.textContent = `${invite.inviterUsername} 邀請你加入房間 "${invite.roomName || invite.roomId}"！`;
-    roomInviteNotificationPopup.classList.add('visible'); // Use .visible to trigger slide-down
+    roomInviteNotificationPopup.classList.add('visible');
 
     let timeLeft = 10;
     roomInviteTimerDisplay.textContent = `自動關閉於 ${timeLeft} 秒...`;
@@ -1899,7 +1860,7 @@ function showRoomInvitePopup(invite, inviteKey) {
             clearInterval(roomInviteTimerIntervalId);
             if (activeRoomInviteData && activeRoomInviteData.inviteKey === inviteKey && roomInviteNotificationPopup.classList.contains('visible')) {
                 const inviteRef = db.ref(`room_invites/${currentUser.uid}/${inviteKey}`);
-                inviteRef.once('value', snapshot => { // Check current status before updating
+                inviteRef.once('value', snapshot => {
                     if (snapshot.exists() && snapshot.val().status === 'pending') {
                         inviteRef.update({ status: 'expired' });
                     }
@@ -1908,14 +1869,11 @@ function showRoomInvitePopup(invite, inviteKey) {
             }
         }
     }, 1000);
-
-    if (roomInviteTimeoutId) clearTimeout(roomInviteTimeoutId);
-    // The interval now handles the timeout logic more explicitly with UI updates
 }
 
 function hideRoomInvitePopup() {
-    roomInviteNotificationPopup.classList.remove('visible'); // Use .visible to trigger slide-up
-    activeRoomInviteData = null; // Clear active data when hiding
+    roomInviteNotificationPopup.classList.remove('visible');
+    activeRoomInviteData = null;
     clearTimeout(roomInviteTimeoutId); roomInviteTimeoutId = null;
     clearInterval(roomInviteTimerIntervalId); roomInviteTimerIntervalId = null;
 }
@@ -1923,16 +1881,15 @@ function hideRoomInvitePopup() {
 acceptRoomInviteButton.addEventListener('click', async () => {
     if (activeRoomInviteData && currentUser) {
         const { roomId, inviteKey } = activeRoomInviteData;
-        // No need to clear timers here, hideRoomInvitePopup will do it
         showLoading("正在加入房間...");
         try {
             await db.ref(`room_invites/${currentUser.uid}/${inviteKey}`).update({ status: 'accepted' });
-            hideRoomInvitePopup(); // This will clear timers and active data
+            hideRoomInvitePopup();
             await joinMultiplayerRoom(roomId);
         } catch (error) {
             console.error("接受房間邀請失敗:", error); alert("接受邀請時發生錯誤");
             hideLoading(); 
-            hideRoomInvitePopup(); // Ensure it's hidden on error too
+            hideRoomInvitePopup();
         }
     }
 });
@@ -1944,147 +1901,53 @@ declineRoomInviteButton.addEventListener('click', async () => {
             await db.ref(`room_invites/${currentUser.uid}/${inviteKey}`).update({ status: 'declined' });
         } catch (error) { console.error("拒絕房間邀請失敗:", error); }
         finally { 
-            hideRoomInvitePopup(); // This will clear timers and active data
+            hideRoomInvitePopup();
         }
     }
 });
 
-// Event listener for the new close button on the banner
 if (roomInviteBannerCloseButton) {
     roomInviteBannerCloseButton.addEventListener('click', async () => {
         if (activeRoomInviteData && currentUser) {
             const { inviteKey } = activeRoomInviteData;
-            // Treat manual close as a decline
             try {
-                await db.ref(`room_invites/${currentUser.uid}/${inviteKey}`).update({ status: 'declined_by_user_close' }); // Or just 'declined'
+                await db.ref(`room_invites/${currentUser.uid}/${inviteKey}`).update({ status: 'declined_by_user_close' });
             } catch (error) { console.error("關閉房間邀請通知失敗:", error); }
             finally {
                 hideRoomInvitePopup();
             }
         } else {
-            hideRoomInvitePopup(); // If no active data, just hide
+            hideRoomInvitePopup();
         }
     });
 }
 
 
-// --- Friend Request Notification Logic ---
+// --- Friend Request Logic (No Popup) ---
 function initializeFriendRequestListener() {
     if (!currentUser || friendRequestsListener) return;
     const requestsRef = db.ref(`users/${currentUser.uid}/friend_invites_received`);
-    if (friendRequestsListener) requestsRef.off('value', friendRequestsListener); 
+    
     friendRequestsListener = requestsRef.on('value', snapshot => {
         const newRequests = snapshot.val() || {};
-        friendRequestsReceived = newRequests; 
+        // Filter for pending requests only
+        friendRequestsReceived = Object.fromEntries(
+            Object.entries(newRequests).filter(([key, req]) => req.status === 'pending')
+        );
 
-        const pendingRequests = Object.entries(newRequests).filter(([key, req]) => req.status === 'pending');
-
-        if (pendingRequests.length > 0) {
-            pendingRequests.sort((a, b) => b[1].timestamp - a[1].timestamp);
-            const [latestRequestSenderUid, latestRequestData] = pendingRequests[0];
-
-            if (!activeFriendRequestData || activeFriendRequestData.senderUid !== latestRequestSenderUid) {
-                if (friendRequestNotificationPopup && !friendRequestNotificationPopup.classList.contains('hidden')) {
-                    hideFriendRequestPopup();
-                }
-                showFriendRequestPopup(latestRequestData, latestRequestSenderUid); 
-            }
-        } else {
-            hideFriendRequestPopup();
+        // If the user is currently on the friends page, re-render the list to show the new request
+        if (friendsPage && !friendsPage.classList.contains('hidden')) {
+            renderFriendsList();
         }
     }, error => console.error("Error fetching friend requests:", error));
+    
     userListeners.push({ ref: requestsRef, eventType: 'value', callback: friendRequestsListener });
-}
-
-function showFriendRequestPopup(requestData, senderUid) {
-    if (!friendRequestNotificationPopup) return; 
-
-    if (requestData.status !== 'pending') {
-        hideFriendRequestPopup();
-        return;
-    }
-
-    // If a room invite banner is active, decide on behavior.
-    // For now, let's assume the friend request modal can show "under" or after the banner is gone.
-    // Or, prevent showing if banner is visible:
-    // if (roomInviteNotificationPopup.classList.contains('visible')) {
-    //     return;
-    // }
-
-    activeFriendRequestData = {
-        senderUid: senderUid,
-        senderUsername: requestData.senderUsername,
-        requestData: requestData 
-    };
-
-    friendRequestMessage.textContent = `${requestData.senderUsername} 邀請你成為好友！`;
-    friendRequestNotificationPopup.classList.remove('hidden'); // This is for the modal style
-
-    let timeLeft = 10;
-    friendRequestTimerDisplay.textContent = `自動關閉於 ${timeLeft} 秒...`;
-    if (friendRequestTimerIntervalId) clearInterval(friendRequestTimerIntervalId);
-    friendRequestTimerIntervalId = setInterval(() => {
-        timeLeft--;
-        friendRequestTimerDisplay.textContent = `自動關閉於 ${timeLeft} 秒...`;
-        if (timeLeft <= 0) {
-            clearInterval(friendRequestTimerIntervalId);
-            if (activeFriendRequestData && activeFriendRequestData.senderUid === senderUid) {
-                db.ref(`users/${currentUser.uid}/friend_invites_received/${senderUid}`).update({ status: 'expired' });
-                hideFriendRequestPopup();
-            }
-        }
-    }, 1000);
-
-    if (friendRequestTimeoutId) clearTimeout(friendRequestTimeoutId);
-    friendRequestTimeoutId = setTimeout(() => {
-    }, 10000);
-}
-
-function hideFriendRequestPopup() {
-    if (!friendRequestNotificationPopup) return; 
-    friendRequestNotificationPopup.classList.add('hidden');
-    activeFriendRequestData = null;
-    clearTimeout(friendRequestTimeoutId);
-    friendRequestTimeoutId = null;
-    clearInterval(friendRequestTimerIntervalId);
-    friendRequestTimerIntervalId = null;
-}
-
-if (acceptFriendRequestButton) {
-    acceptFriendRequestButton.addEventListener('click', async () => {
-        if (activeFriendRequestData && currentUser) {
-            const { senderUid, senderUsername } = activeFriendRequestData;
-            await acceptFriendRequest(senderUid, senderUsername);
-            hideFriendRequestPopup();
-        }
-    });
-}
-
-if (declineFriendRequestButton) {
-    declineFriendRequestButton.addEventListener('click', async () => {
-        if (activeFriendRequestData && currentUser) {
-            const { senderUid } = activeFriendRequestData;
-            await declineFriendRequest(senderUid);
-            hideFriendRequestPopup();
-        }
-    });
-}
-
-if (closeFriendRequestPopupButton) {
-    closeFriendRequestPopupButton.addEventListener('click', () => {
-        if (activeFriendRequestData && currentUser) {
-            const { senderUid } = activeFriendRequestData;
-            db.ref(`users/${currentUser.uid}/friend_invites_received/${senderUid}`).update({ status: 'dismissed_by_user' });
-        }
-        hideFriendRequestPopup();
-    });
 }
 
 
 // --- Initial Page Load ---
 document.addEventListener('DOMContentLoaded', async () => {
     showLoading("正在載入遊戲...");
-    // Ensure the notification banner is hidden by default (though CSS transform handles this)
     if(roomInviteNotificationPopup) {
         roomInviteNotificationPopup.classList.remove('visible'); 
     }

@@ -279,19 +279,19 @@ button:disabled:hover {
 
 /* Styling for the friend invite section in Multiplayer Room */
 #mp-room-friend-invite-list-container {
-    width: 85%; /* Match player-list-mp width */
-    margin: 15px auto; /* Centered with top/bottom margin */
+    width: 85%;
+    margin: 15px auto;
 }
 
 #mp-room-friend-invite-list-container h4 {
     font-weight: bold;
     margin-bottom: 8px;
-    font-size: 1em; /* Similar to .player-list-title-mp */
-    color: #E0E0E0; /* Standard text color for titles */
-    text-align: center; /* As per image */
+    font-size: 1em;
+    color: #E0E0E0;
+    text-align: center;
 }
 
-.player-list-mp-invite { /* The UL element for inviting friends */
+.player-list-mp-invite {
     list-style: none;
     padding: 0;
     width: 100%;
@@ -308,7 +308,7 @@ button:disabled:hover {
     border-bottom: 1px solid #505050;
     color: #D0D0D0;
     display: flex;
-    justify-content: space-between; /* This is key for spacing out children */
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -460,21 +460,22 @@ button:disabled:hover {
 .friend-info {
     display: flex;
     align-items: center;
+    flex-grow: 1;
 }
 .friend-name {
     margin-right: 10px;
 }
 .friend-status {
     font-size: 0.75em;
-    padding: 3px 8px;
+    padding: 2px 7px;
     border-radius: 15px;
-    color: #2D2D2D;
     font-weight: bold;
-    border: 1px solid;
+    border: 1.5px solid;
+    background-color: transparent;
 }
-.status-idle { background-color: #90EE90; border-color: #7ACD7A; }
-.status-in-game, .status-in-room { background-color: #FFB6C1; border-color: #FF99AA; }
-.status-offline { background-color: #A9A9A9; border-color: #888888; color: #E0E0E0; }
+.status-idle { border-color: #7ACD7A; color: #7ACD7A; }
+.status-in-game, .status-in-room { border-color: #FF99AA; color: #FF99AA; }
+.status-offline { border-color: #888888; color: #A9A9A9; }
 
 .remove-friend-button-friends-page {
     background-color: transparent;
@@ -497,6 +498,39 @@ button:disabled:hover {
     color: #2D2D2D;
 }
 
+/* Friend Request Item Styling */
+.friend-request-actions {
+    display: flex;
+    gap: 10px;
+}
+.accept-request-button, .decline-request-button {
+    background-color: transparent;
+    border: 2px solid;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+.accept-request-button {
+    border-color: #7ACD7A;
+    color: #7ACD7A;
+}
+.accept-request-button:hover {
+    background-color: #7ACD7A;
+    color: #2D2D2D;
+}
+.decline-request-button {
+    border-color: #FF99AA;
+    color: #FF99AA;
+}
+.decline-request-button:hover {
+    background-color: #FF99AA;
+    color: #2D2D2D;
+}
+
+
 .friends-page-bottom-button {
     background-color: #2D2D2D;
     color: #E0E0E0;
@@ -518,7 +552,7 @@ button:disabled:hover {
 
 /* --- Leaderboard Page --- */
 #leaderboard-list {
-    list-style: none; /* Changed from decimal to none for custom styling */
+    list-style: none;
     padding: 0;
     width: 100%;
     max-height: 100%;
@@ -559,7 +593,7 @@ button:disabled:hover {
 
 
 /* --- General Fallbacks & Overrides --- */
-.hidden { display: none !important; } /* Keep this for general use */
+.hidden { display: none !important; }
 
 #current-user-info {
     position: fixed; top: 10px; right: 10px; background-color: rgba(59, 59, 59, 0.9);
@@ -587,70 +621,68 @@ button:disabled:hover {
 /* --- Room Invite Notification Banner Styling --- */
 #room-invite-notification-popup {
     position: fixed;
-    top: 0; /* Animated with transform */
+    top: 0;
     left: 50%;
-    transform: translateX(-50%) translateY(-150%); /* Initially off-screen */
+    transform: translateX(-50%) translateY(-150%);
     width: 90%;
-    max-width: 480px; /* Constrain width */
-    background-color: #EADBCB; /* Parchment-like background */
-    border-radius: 0 0 12px 12px; /* Rounded bottom corners */
+    max-width: 480px;
+    background-color: #EADBCB;
+    border-radius: 0 0 12px 12px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
-    z-index: 5000; /* High z-index to appear on top */
-    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth transition */
-    /* display: none;  Will be controlled by a .visible class via JS */
+    z-index: 5000;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 #room-invite-notification-popup.visible {
-    transform: translateX(-50%) translateY(20px); /* Slide down to 20px from top */
-    /* display: block; /* Or flex, depending on inner content */
+    transform: translateX(-50%) translateY(20px);
 }
 
 #room-invite-notification-popup .popup-content {
-    background-color: transparent; /* Parent handles background */
-    box-shadow: none; /* Parent handles shadow */
-    padding: 12px 15px 10px 15px; /* Adjusted padding */
+    background-color: transparent;
+    box-shadow: none;
+    padding: 12px 15px 10px 15px;
     min-width: auto;
     max-width: 100%;
     text-align: center;
-    position: relative; /* For the close button */
-    color: #5D4037; /* Default text color for the banner */
+    position: relative;
+    color: #5D4037;
 }
 
-#room-invite-notification-popup h3 { /* Hide the original "房間邀請" title */
+#room-invite-notification-popup h3 {
     display: none;
 }
 
 #room-invite-message {
-    font-size: 0.95em; /* Slightly larger message text */
-    color: #5D4037;   /* Dark brown text */
+    font-size: 0.95em;
+    color: #5D4037;
     margin-bottom: 12px;
-    font-weight: 500; /* Normal to semi-bold */
+    font-weight: 500;
     line-height: 1.4;
 }
 
 .room-invite-actions {
     display: flex;
     justify-content: center;
-    gap: 15px; /* Space between buttons */
+    gap: 15px;
     margin-bottom: 10px;
 }
 
 #accept-room-invite-button,
 #decline-room-invite-button {
-    padding: 7px 22px; /* Adjusted padding */
-    border-radius: 18px; /* Slightly less rounded */
-    border: 1px solid; /* Thinner border */
+    padding: 7px 22px;
+    border-radius: 18px;
+    border: 1px solid;
     font-weight: bold;
-    font-size: 0.85em; /* Adjusted font size */
+    font-size: 0.85em;
     cursor: pointer;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for buttons */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 #accept-room-invite-button {
-    background-color: #C8E6C9; /* Light Green */
-    border-color: #A5D6A7;   /* Slightly darker green border */
-    color: #2E7D32;          /* Dark Green text */
+    background-color: #C8E6C9;
+    border-color: #A5D6A7;
+    color: #2E7D32;
 }
 #accept-room-invite-button:hover {
     background-color: #B9DAB9;
@@ -658,9 +690,9 @@ button:disabled:hover {
 }
 
 #decline-room-invite-button {
-    background-color: #FFCDD2; /* Light Red */
-    border-color: #EF9A9A;   /* Slightly darker red border */
-    color: #C62828;          /* Dark Red text */
+    background-color: #FFCDD2;
+    border-color: #EF9A9A;
+    color: #C62828;
 }
 #decline-room-invite-button:hover {
     background-color: #F4B6BA;
@@ -669,21 +701,21 @@ button:disabled:hover {
 
 #room-invite-timer {
     font-size: 0.8em;
-    color: #795548; /* Brownish text */
-    margin-top: 5px; /* Add some space above the timer */
+    color: #795548;
+    margin-top: 5px;
 }
 
 .room-invite-banner-close-button {
     position: absolute;
-    top: 8px;  /* Adjusted for new padding */
-    right: 10px; /* Adjusted for new padding */
+    top: 8px;
+    right: 10px;
     background: none;
     border: none;
-    font-size: 22px; /* Slightly larger X */
+    font-size: 22px;
     font-weight: bold;
-    color: #B71C1C; /* Stronger Red for X */
+    color: #B71C1C;
     cursor: pointer;
-    padding: 0; /* Remove padding to make it tighter */
+    padding: 0;
     line-height: 1;
     opacity: 0.7;
     transition: opacity 0.2s;
@@ -691,24 +723,6 @@ button:disabled:hover {
 .room-invite-banner-close-button:hover {
     opacity: 1;
 }
-
-/* Ensure original .popup-overlay and .popup-content for other popups are not affected if they exist */
-/* This is a general rule, if you have other popups, they should have their own distinct classes or IDs */
-.popup-overlay:not(#room-invite-notification-popup) {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.65); display: flex; justify-content: center;
-    align-items: center; z-index: 3000;
-}
-.popup-overlay:not(#room-invite-notification-popup) .popup-content {
-    background-color: white; padding: 25px 35px; border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center;
-    min-width: 300px; max-width: 90%; color: #333;
-    position: relative;
-}
-.popup-overlay:not(#room-invite-notification-popup) .popup-content h3 { margin-top: 0; color: #007bff; }
-.popup-overlay:not(#room-invite-notification-popup) .popup-content p { margin-bottom: 15px; }
-.popup-overlay:not(#room-invite-notification-popup) .popup-content button { margin: 5px; }
-
 
 /* --- Responsive Adjustments --- */
 @media (max-width: 600px) {
@@ -758,7 +772,6 @@ button:disabled:hover {
     .player-list-mp { width: 90%; max-height: 100px; }
     .player-list-mp li { padding: 7px 10px; font-size: 0.9em;}
     #multiplayer-room button:not(.room-invite-friend-button) { padding: 8px 0; font-size: 0.8em; width: 31%;}
-    /* Responsive for friend invite list in room */
     #mp-room-friend-invite-list-container { width: 90%; }
     #mp-room-friend-invite-list-container h4 { font-size: 0.9em; }
     .player-list-mp-invite li { padding: 7px 10px; font-size: 0.9em; }
@@ -776,8 +789,7 @@ button:disabled:hover {
     .remove-friend-button-friends-page { width: 24px; height: 24px; font-size: 1em; line-height: 22px;}
     .friends-page-bottom-button { padding: 9px 20px; font-size: 0.85em; width: 55%; }
     
-    /* Responsive for Leaderboard */
-    #leaderboard-list li.leaderboard-item {
+    .leaderboard-list li.leaderboard-item {
         font-size: 0.9em;
         padding: 8px 2px;
     }
@@ -796,13 +808,12 @@ button:disabled:hover {
     h1:not(#auth-page .blackboard-container h1):not(#main-menu .blackboard-container h1.main-menu-game-title) { font-size: 1.6em; }
     h2:not(#auth-page #login-view h2):not(#auth-page #register-view h2) { font-size: 1.3em; }
     
-    /* Responsive adjustments for the invite banner */
     #room-invite-notification-popup {
         width: 95%;
         padding: 12px 15px 8px 15px;
     }
     #room-invite-notification-popup.visible {
-        transform: translateX(-50%) translateY(10px); /* Slide down a bit less on mobile */
+        transform: translateX(-50%) translateY(10px);
     }
     #room-invite-message {
         font-size: 0.9em;
@@ -826,7 +837,6 @@ button:disabled:hover {
         font-size: 20px;
     }
 
-    /* Ensure other popups are also responsive if needed */
     .popup-overlay:not(#room-invite-notification-popup) .popup-content { 
         padding: 18px 25px; min-width: 260px; 
     }
